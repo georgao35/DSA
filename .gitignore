@@ -2,4 +2,5 @@
 *.txt
 *.json
 *.dSYM
+.DS_store
 !*.cpp
