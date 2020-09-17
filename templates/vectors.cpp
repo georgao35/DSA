@@ -41,4 +41,5 @@ void Vector<T>::append(const T& src){
 template <class T>
 T& Vector<T>::operator[](int rank){
     if(rank >= 0 && rank <_size) return _content[rank];
+    throw "Rank out of index";
 }
