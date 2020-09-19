@@ -44,7 +44,7 @@ int main(){
         memset(IntA,0,sizeof(IntA));
         memset(IntB,0,sizeof(IntB));
         memset(result,0,sizeof(result));
-        cin>>a>>b;
+        scanf("%s%s",a,b);
         getInt();
         int alen = strlen(a)/8 + ( strlen(a)%8? 1:0 );
         int blen = strlen(b)/8 + ( strlen(b)%8? 1:0 );
