@@ -19,17 +19,17 @@ public:
     T get(Rank r);
 
     Rank insert(Rank r, T const & e);
-    int remove(Rank lo, Rank hi);//区间删除
+    int remove(Rank lo, Rank hi);//区间删除,返回删除的个数
     T remove(Rank r);//单个删除,视为上一个区间删除的特例
 
     bool disordered();
     void sort();
-    void deduplicate();
+    int deduplicate();//返回减去的数量
     void uniquify();//对有序向量的去重操作
 
     T& operator[](int Rank);
 
-    Rank find(const T& e, Rank lo=0, Rank hi=_size);//适用于所有向量的顺序查找
+    Rank find(const T& e, Rank lo, Rank hi);//适用于所有向量的顺序查找
     T& binSearch(const T& e, Rank lo, Rank hi);//适用于有序向量的二分查找
 };
 
@@ -75,8 +75,10 @@ Rank Vector<T>::insert(Rank r, const T& e){
 template <class T>
 int Vector<T>::remove(Rank lo, Rank hi){
     if(lo == hi) return 0;
-    for(Rank i = hi;i<_size;++i) _content[i-hi+lo] = _content[i];
-    _size -= hi-lo;
+    //for(Rank i = hi;i<_size;++i) _content[i-hi+lo] = _content[i];
+    //_size -= hi-lo;
+    while(hi<_size) _content[lo++] = _content[hi++];
+    _size = lo;
     return hi-lo;
 }
 
@@ -97,14 +99,19 @@ template <class T>//逆序查找
 Rank Vector<T>::find(const T& e, Rank lo, Rank hi){
     if(0<=lo && lo<hi && hi<_size){
         while((lo < hi--)&&(_content[hi]!=e))//选择逆向查找
-        return hi;//若hi小于lo时则退出
+        return hi;//若hi小于lo时则错误
     }
     throw "error in index";
 }
 
 template <class T>
-void Vector<T>::deduplicate(){
-
+int Vector<T>::deduplicate(){
+    int old_size = _size; Rank i = 1;
+    while(i<_size){
+        if(find(_content,0,i)<0) i++;
+        else remove(i);
+    }
+    return old_size-_size;
 }
 
 template <class T>
