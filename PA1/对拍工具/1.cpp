@@ -15,7 +15,7 @@ void getInt(){
     int i = 0;
     while (j>=0){
         int base = 1;
-        for(int k=0; k<6 && j>=0 ; k++){
+        for(int k=0; k<8 && j>=0 ; k++){
             IntA[i] += base*(a[j]-'0');
             j--;
             base *= 10;
@@ -26,7 +26,7 @@ void getInt(){
     i = 0;
     while (j>=0){
         int base = 1;
-        for(int k=0; k<6 && j>=0 ; k++){
+        for(int k=0; k<8 && j>=0 ; k++){
             IntB[i] += base*(b[j]-'0');
             j--;
             base *= 10;
@@ -46,8 +46,8 @@ int main(){
         memset(result,0,sizeof(result));
         cin>>a>>b;
         getInt();
-        int alen = strlen(a)/6 + ( strlen(a)%6? 1:0 );
-        int blen = strlen(b)/6 + ( strlen(b)%6? 1:0 );
+        int alen = strlen(a)/8 + ( strlen(a)%8? 1:0 );
+        int blen = strlen(b)/8 + ( strlen(b)%8? 1:0 );
 
         for(int i=0;i<alen+blen;++i){
             for(int j=0;j<=i;j++){
@@ -57,8 +57,8 @@ int main(){
                 }
             }
             if(i){
-                result[i] += result[i-1]/1000000;
-                result[i-1] %= 1000000;
+                result[i] += result[i-1]/100000000;
+                result[i-1] %= 100000000;
             }
         }
         int end = alen+blen-1;
@@ -67,7 +67,7 @@ int main(){
         }
         cout<<result[end--];
         while (end >= 0 ){
-            cout<<setfill('0')<<setw(6)<<result[end--];
+            cout<<setfill('0')<<setw(8)<<result[end--];
         }
         cout<<endl;
     }

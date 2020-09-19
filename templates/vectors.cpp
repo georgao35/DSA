@@ -15,6 +15,7 @@ public:
 
     int size();
     void expand();
+    void shrink();
     void append(const T&);
     T get(Rank r);
 
@@ -26,6 +27,7 @@ public:
     void sort();
     int deduplicate();//返回减去的数量
     void uniquify();//对有序向量的去重操作
+    template<typename VST> void traverse(VST& func);//通过函数对象进行遍历
 
     T& operator[](int Rank);
 
@@ -109,12 +111,27 @@ int Vector<T>::deduplicate(){
     int old_size = _size; Rank i = 1;
     while(i<_size){
         if(find(_content,0,i)<0) i++;
-        else remove(i);
+        else remove(i);//因为算法是从前到后，判断前面是否有相同的，并保证前面是独一无二的，因此删除当前这一个元素可以保证正确性
     }
     return old_size-_size;
 }
 
 template <class T>
 void Vector<T>::uniquify(){
-
+    Rank i=0,j=1;
+    while(j<_size){
+        if(_content[j-1]!=_content[j]) _content[++i]=_content[j];
+        else j++;
+    }
+    _size = ++i; shrink();
+    return j-i;
 }
+
+template <typename T> template <typename VST>
+void Vector<T>::traverse(VST& func){
+    for(Rank i=0;i<_size;++i){
+        func(_content[i]);
+    }
+}
+
+

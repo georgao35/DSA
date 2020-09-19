@@ -1,8 +1,8 @@
 import random
 
 # 3 组数据，每个数不超过 10 位
-n = 3
-hi = 10 ** 10
+n = 50
+hi = 10 ** 5003
 
 print(n)
 for _ in range(n):

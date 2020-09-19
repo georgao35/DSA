@@ -1,6 +1,7 @@
 import sys
 
 from subprocess import run
+import time
 
 
 def check_ans(output_file1, output_file2):
@@ -32,8 +33,10 @@ while True:
     run(sys.argv[3], stdout=open("input.txt", "w"),
         shell=True).check_returncode()
 
+    start = time.time()
     run(sys.argv[1], stdin=open("input.txt"), stdout=open("output1.txt", "w"),
         timeout=1., shell=True).check_returncode()
+    print(time.time()-start)
 
     run(sys.argv[2], stdin=open("input.txt"), stdout=open("output2.txt", "w"),
         timeout=1., shell=True).check_returncode()
@@ -41,4 +44,4 @@ while True:
     if not check_ans("output1.txt", "output2.txt"):
         print("Wrong")
         break
-    print("OK")
+    # print("OK")
