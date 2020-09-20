@@ -35,6 +35,8 @@ public:
     Rank binSearch(const T& e, Rank lo, Rank hi);//适用于有序向量的二分查找
 
     void bubbleSort(Rank lo, Rank hi);
+    void mergeSort(Rank lo, Rank hi);
+    void merge(Rank lo, Rank mi, Rank hi);
 };
 
 template <class T>
@@ -158,3 +160,28 @@ void Vector<T>::bubbleSort(Rank lo, Rank hi){
     //应当有输入判断
     
 }
+
+template <class T>
+void Vector<T>::mergeSort(Rank lo, Rank hi){
+    if(hi-lo < 2) return; //递归基!当单位长度时已经有序
+    Rank mid = (lo+hi)>>1;
+    mergeSort(lo, mid);
+    mergeSort(mid, hi);
+    merge(lo, mid, hi);
+}
+
+template <class T>
+void Vector<T>::merge(Rank lo, Rank mid, Rank hi){
+    Rank i=0; T* A = _content+lo;
+    int len = mid-lo;
+    Rank j=0; T* B = new T [len];
+    for(Rank i=0;i<len;++i) B[i] = A[i];
+    Rank k=0; T* C = _content+mid;
+    while(j<len and k<hi-mid)
+        A[i++] = (B[j]<=C[k])? B[j++]:C[k++];
+    while(j<len)//如果C先耗尽了，则将B中的
+        A[i++] = B[j++];
+    delete [] B;
+}
+
+
