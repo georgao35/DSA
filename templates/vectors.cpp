@@ -183,5 +183,3 @@ void Vector<T>::merge(Rank lo, Rank mid, Rank hi){
         A[i++] = B[j++];
     delete [] B;
 }
-
-
