@@ -23,7 +23,7 @@ public:
     int remove(Rank lo, Rank hi);//区间删除,返回删除的个数
     T remove(Rank r);//单个删除,视为上一个区间删除的特例
 
-    bool disordered();
+    int disordered();//返回逆序对的个数，代表了逆序的程度
     void sort();
     int deduplicate();//返回减去的数量
     void uniquify();//对有序向量的去重操作
@@ -32,7 +32,9 @@ public:
     T& operator[](int Rank);
 
     Rank find(const T& e, Rank lo, Rank hi);//适用于所有向量的顺序查找
-    T& binSearch(const T& e, Rank lo, Rank hi);//适用于有序向量的二分查找
+    Rank binSearch(const T& e, Rank lo, Rank hi);//适用于有序向量的二分查找
+
+    void bubbleSort(Rank lo, Rank hi);
 };
 
 template <class T>
@@ -134,4 +136,25 @@ void Vector<T>::traverse(VST& func){
     }
 }
 
+template <class T>
+Rank Vector<T>::binSearch(const T& e, Rank lo, Rank hi){
+    while(lo<hi){
+        Rank mid = (lo+hi)>>1;
+        e<_content[mid]? hi=mid:lo=mid+1;
+    }
+    return lo-1;
+}
 
+template <class T>
+int Vector<T>::disordered(){
+    int cnt = 0;
+    for(int i=1;i<_size;++i)
+        cnt += (_content[i-1]>_content[i]);//逆序则计数的高端写法
+    return cnt;
+}
+
+template <class T>
+void Vector<T>::bubbleSort(Rank lo, Rank hi){
+    //应当有输入判断
+    
+}
