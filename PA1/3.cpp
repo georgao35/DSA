@@ -4,7 +4,7 @@
 using namespace std;
 
 int n,m,k;
-const int maxL = 50105;
+const int maxL = 501010;
 char a[maxL], b[maxL];
 
 int d[2][maxL];
@@ -34,8 +34,8 @@ int main(){
         }
     }
     ans = m+n-2*d[n%2][m];
-   // if(ans > k)
-        //ans = -1;
+    if(ans > k)
+        ans = -1;
     printf("%d\n",ans);
     return 0;
 }

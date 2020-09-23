@@ -1,30 +1,31 @@
 #include <iostream>
 #include <cstdio>
 using namespace std;
+typedef long long ull;
 
-bool toLeft(int x, int y, int i);
-void sort(int begin, int end, int*);
+bool toLeft(ull x, ull y, int i);
+void sort(int begin, int end, ull*);
 
 int n,m;
 const int maxN = 200005;
-int x[maxN], y[maxN];
+ull x[maxN], y[maxN];
 
 int main(){
     scanf("%d",&n);
     x[0] = 0;
     y[0] = 0;
     for(int i=1;i<=n;++i){
-        scanf("%d",&x[i]);
+        scanf("%lld",&x[i]);
     }
     for(int i=1;i<=n;++i){
-        scanf("%d",&y[i]);
+        scanf("%lld",&y[i]);
     }
     sort(0,n,x);
     sort(0,n,y);
     scanf("%d",&m);
     while(m-->0){
-        int pX,pY;
-        scanf("%d%d",&pX,&pY);
+        ull pX,pY;
+        scanf("%lld%lld",&pX,&pY);
         int left = 0;
         int right = n+1;
         while(right - left > 1){
@@ -40,12 +41,12 @@ int main(){
     return 0;
 }
 
-bool toLeft(int px, int py, int i){
-    int x1 = x[i], y1 = y[i];
+bool toLeft(ull px, ull py, int i){
+    ull x1 = x[i], y1 = y[i];
     return (x1-px)*y1 - x1*py > 0;
 }
 
-void sort(int begin, int end, int* data){
+void sort(int begin, int end, ull* data){
     if(begin < end){
         int i = begin, j = end;
         int tmp = data[i];

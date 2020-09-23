@@ -62,7 +62,7 @@ int main(){
             }
         }
         int end = alen+blen-1;
-        while(result[end] == 0){
+        while(result[end] == 0 and end > 0){
             end --;
         }
         cout<<result[end--];

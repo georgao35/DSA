@@ -26,7 +26,7 @@ public:
     int disordered();//返回逆序对的个数，代表了逆序的程度
     void sort();
     int deduplicate();//返回减去的数量
-    void uniquify();//对有序向量的去重操作
+    int uniquify();//对有序向量的去重操作
     template<typename VST> void traverse(VST& func);//通过函数对象进行遍历
 
     T& operator[](int Rank);
@@ -121,7 +121,7 @@ int Vector<T>::deduplicate(){
 }
 
 template <class T>
-void Vector<T>::uniquify(){
+int Vector<T>::uniquify(){
     Rank i=0,j=1;
     while(j<_size){
         if(_content[j-1]!=_content[j]) _content[++i]=_content[j];
