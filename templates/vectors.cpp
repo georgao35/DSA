@@ -63,7 +63,7 @@ void Vector<T>::append(const T& src){
 
 template <class T>
 T Vector<T>::get(Rank i){
-    if(Rank >= 0 && Rank <_size) return _content[Rank];
+    if(i >= 0 && i <_size) return _content[i];
     throw "rank out of range";
 }
 
@@ -81,10 +81,10 @@ Rank Vector<T>::insert(Rank r, const T& e){
 template <class T>
 int Vector<T>::remove(Rank lo, Rank hi){
     if(lo == hi) return 0;
-    //for(Rank i = hi;i<_size;++i) _content[i-hi+lo] = _content[i];
+    //for(Rank i = hi;i<_   size;++i) _content[i-hi+lo] = _content[i];
     //_size -= hi-lo;
     while(hi<_size) _content[lo++] = _content[hi++];
-    _size = lo;
+    _size = lo;//到哪里，lo进行了标注；同时由于++的存在，lo直接成为了哨兵
     return hi-lo;
 }
 
@@ -104,7 +104,7 @@ T& Vector<T>::operator[](int rank){
 template <class T>//逆序查找
 Rank Vector<T>::find(const T& e, Rank lo, Rank hi){
     if(0<=lo && lo<hi && hi<_size){
-        while((lo < hi--)&&(_content[hi]!=e))//选择逆向查找
+        while((lo < hi--)&&(_content[hi]!=e))//选择逆向查找；在比较的时候已经-1了，因此从数组取值的时候不会越界
         return hi;//若hi小于lo时则错误
     }
     throw "error in index";
@@ -125,7 +125,7 @@ int Vector<T>::uniquify(){
     Rank i=0,j=1;
     while(j<_size){
         if(_content[j-1]!=_content[j]) _content[++i]=_content[j];
-        else j++;
+        j-+;
     }
     _size = ++i; shrink();
     return j-i;
@@ -137,7 +137,7 @@ void Vector<T>::traverse(VST& func){
         func(_content[i]);
     }
 }
-
+//约定返回的值：不大于e的最后一个元素
 template <class T>
 Rank Vector<T>::binSearch(const T& e, Rank lo, Rank hi){
     while(lo<hi){
