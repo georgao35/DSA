@@ -125,7 +125,7 @@ int Vector<T>::uniquify(){
     Rank i=0,j=1;
     while(j<_size){
         if(_content[j-1]!=_content[j]) _content[++i]=_content[j];
-        j-+;
+        j++;
     }
     _size = ++i; shrink();
     return j-i;

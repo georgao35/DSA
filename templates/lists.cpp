@@ -43,7 +43,7 @@ protected:
 public:
     void init();//构造列表
     void copyNodes(Posi(T) p, int n);//用已有列表进行初始化，粘贴p以后的n个结点
-    int clear();//清除列表中的结点，方便析构，返回删除的结点个数
+    int clear();//清除列表中的结点，方便析构，返回删除的结点个数(即原来的长度)
     ~List<T> ();
 
     T& operator[](Rank r);
@@ -53,6 +53,9 @@ public:
     T remove(Posi(T));
     Posi(T) find(T const& e, int n, Posi(T) p);//从p结点前n个前驱中查找
     Posi(T) find(T const& e);
+    int deduplicate();//无序列表的去重操作，算法与无序向量的相同
+    template <class FUN> void traverse(FUN func);//遍历
+    int uniquify();//有序列表的去重操作，与向量类似，但稍有不同的是列表的
 };
 
 template <typename T>
@@ -75,7 +78,17 @@ void List<T>::copyNodes(Posi(T)p, int n){
 
 template <typename T>
 int List<T>::clear(){
-    
+    int old_size = _size;
+    while(0<_size)//可否删除最后一个结点？
+        remove(header->succ);
+    return old_size;
+}
+
+template <typename T>
+List<T>::~List<T>(){
+    clear();
+    delete header;
+    delete trailer;
 }
 
 template <typename T>
@@ -111,8 +124,7 @@ T List<T>::remove(Posi(T) p){
 template <typename T>
 Posi(T) List<T>::find(const T& e, int n, Posi(T) p){//默认
     while(n-- > 0){
-        p=p->pred;
-        if(e == p->data) return p;//返回了最后一个e
+        if(e == (p=p->pred)->data) return p;//返回了最后一个e
     }
     return nullptr;
 }
@@ -121,3 +133,36 @@ template <typename T>
 Posi(T) List<T>::find(const T& e){
     return find(e,_size,trailer);
 }
+
+template <typename T>
+int List<T>::deduplicate(){
+    int old_size = _size;
+    Posi(T) p = first();
+    for(Rank r = 0; p!=trailer; p=p->succ){
+        if(Posi(T) q = find(p->data, r, p)) remove(q);
+        else r++;//记录前面有多少个不重复的结点
+    }
+    return old_size-_size;
+}
+
+template <typename T> template <class FUN>
+void List<T>::traverse(FUN func){
+    Posi(T) p = header;
+    while ((p=p->succ)!=trailer){
+        func(p);
+    }
+}
+
+template <typename T>
+int List<T>::uniquify(){
+    if(_size<2) return 0;
+    int old_size = _size;//记录原来的规模
+    Posi(T) p = first(), q;//从区间的开始进行查找，也是一种可以遍历整个列表的方法
+    while((q=p->succ)!=trailer){//不断考察相邻的两个结点，这种高级语法
+        if(p->data=q->data) remove(q);//由于向量无法做到高效的寻秩访问，因此按顺序前后移动已经是最快的选择
+        else p = q;
+    }
+    return old_size-_size;
+}
+
+
