@@ -3,132 +3,61 @@
 #include <cstring>
 using namespace std;
 
-char src[105];//初始的字符串
-int leftId, rightId, len;
-
+const int maxn = 20;
+int n, x[maxn], result[maxn];
+int all = 2;
 struct Node{
-    Node* pred; 
-    Node* succ;
-    char value;
+    int pred, succ; int data;
+}nodes[maxn], queap[maxn];
 
-    Node(){}
-    Node(char e, Node* pred, Node* succ):value(e), pred(pred), succ(succ) {}
-    Node* insertAsPred(char e){
-        Node* tmp = new Node(e, pred, this);
-        pred->succ = tmp; pred = tmp;
-        len++;
-        return tmp;
-    }
-    Node* insertAsSucc(char e){
-        Node* tmp = new Node(e, this, succ);
-        succ->pred = tmp; succ = tmp;
-        len++;
-        return tmp;
-    }
-};
-Node* Left, *Right;
-Node* header, *trailer;
+void push(int data){
+    nodes[all].data = data; nodes[all].succ = 0; nodes[all].pred = all-1;
 
-void moveRight(){
-    char which;//判断左右
-    scanf("%c", &which);
-    switch (which)
-    {
-    case 'L':
-        if(leftId == len)
-            printf("F\n");
-        else{
-            Left = Left->succ;
-            leftId++;
-            printf("T\n");
-        }
-        break;
-    case 'R':
-        if(rightId == len)
-            printf("F\n");
-        else{
-            Right = Right->succ;
-            rightId++;
-            printf("T\n");
-        }
-        break;
-    default:
-        break;
+    queap[all].data = data; queap[all].succ = 0; queap[all].pred = all-1;
+    int j = all-1;
+    while(queap[j].data < data){
+        queap[j].data = data; j = queap[j].pred;
     }
+    all++;
 }
-void moveLeft(){
-    char which;
-    scanf("%c", &which);
-    switch (which)
-    {
-    case 'L':
-        if(leftId == 0)
-            printf("F\n");
-        else{
-            Left = Left->pred;
-            leftId--;
-            printf("T\n");
-        }
-        break;
-    case 'R':
-        if(rightId == 0)
-            printf("F\n");
-        else{
-            Right = Right->pred;
-            rightId--;
-            printf("T\n");
-        }
-    default:
-        break;
-    }
+int pop(){
+    nodes[1].succ = nodes[nodes[1].succ].succ;
+    nodes[nodes[1].succ].pred = 1;
+
+    int result = queap[1].data;
+    queap[1].succ = queap[queap[1].succ].succ; queap[queap[1].succ].pred = 1;
+    return result;
 }
-void insert(){}
-void del(){}
-void reverse(){}
-void show(){}
-void init(){
-    header = new Node; trailer = new Node;
-    header->succ = trailer; header->pred = nullptr;
-    trailer->pred = header; trailer->succ = nullptr;
-    int l = strlen(src);
-    for(int i=0; i<l; ++i){
-        trailer->insertAsPred(src[i]);
+
+void quicksort(int* data, int lo, int hi){
+    if(lo<hi){
+        int a = data[lo];
+        int i = lo, j = hi;
+        while(i<j and data[i]<a) i++;
+        if(i<j) data[j--] = data[i++];
+        while(i<j and data[j]>a) j--;
+        if(i<j) data[i++] = data[j--];
+        quicksort(data,lo,i);
+        quicksort(data,i+1,hi);
     }
-    Left = header->succ; leftId = 0;
-    Right = trailer; rightId = strlen(src); 
 }
 
 int main(){
-    scanf("%s",src);
-    leftId = 0; rightId = strlen(src);
-    init();
-    int n;
     scanf("%d",&n);
-    while(n-- > 0){
-        char manip;
-        scanf("%c",&manip);
-        switch (manip)
-        {
-        case '>':
-            moveRight();
-            break;
-        case '<':
-            moveLeft();
-            break;
-        case 'I':
-            insert();
-            break;
-        case 'D':
-            del();
-            break;
-        case 'R':
-            reverse();
-            break;
-        case 'S':
-            show();
-            break;
-        default:
-            break;
-        }
+    for(int i=0;i<n;++i) scanf("%d", x+i);
+    int current = 0;
+    nodes[0].data = 0; nodes[0].pred = 1; nodes[1].succ = 0;
+    for(int i=0;i<n;++i){
+        int m, from;
+        scanf("%d", &m); from = i-m;//开始计数的序号
+        for(;current<from;current++) pop();
+        result[i] = queap[queap[1].succ].data;
+        push(x[i]);
     }
+    int t,p,q; scanf("%d", &t);
+    while(t-->0){
+        scanf("%d%d", &p, &q);
+
+    }
+    return 0;
 }
