@@ -51,11 +51,14 @@ public:
     Posi(T) insertB(Posi(T) p, const T& e);//e作为p的直接前驱插入
     Posi(T) first();
     T remove(Posi(T));
-    Posi(T) find(T const& e, int n, Posi(T) p);//从p结点前n个前驱中查找
+    Posi(T) find(T const& e, int n, Posi(T) p);//从p结点的n个前驱中查找
     Posi(T) find(T const& e);
     int deduplicate();//无序列表的去重操作，算法与无序向量的相同
     template <class FUN> void traverse(FUN func);//遍历
-    int uniquify();//有序列表的去重操作，与向量类似，但稍有不同的是列表的
+    int uniquify();//有序列表的去重操作，与向量类似，但稍有不同的是列表无法高效随机访问，因此采用从前到后的方法
+
+    void mergeSort(Posi(T) p, int n);//对起始于p的n个元素进行排序
+    void merge(Posi(T) p, int n, List<T>& l, Posi(T) q, int m);//将p开始的n个元素与l列表中q开始的m个元素进行归并
 };
 
 template <typename T>
@@ -159,10 +162,32 @@ int List<T>::uniquify(){
     int old_size = _size;//记录原来的规模
     Posi(T) p = first(), q;//从区间的开始进行查找，也是一种可以遍历整个列表的方法
     while((q=p->succ)!=trailer){//不断考察相邻的两个结点，这种高级语法
-        if(p->data=q->data) remove(q);//由于向量无法做到高效的寻秩访问，因此按顺序前后移动已经是最快的选择
+        if(p->data==q->data) remove(q);//由于向量无法做到高效的寻秩访问，因此按顺序前后移动已经是最快的选择
         else p = q;
     }
     return old_size-_size;
 }
 
+template <typename T>
+void List<T>::mergeSort(Posi(T) p, int n){
+    if(n<2) return;//递归基
+    Posi(T) q = p; int m = n>>1;
+    for(int i=0;i<m;i++) q = q->succ;
+    mergeSort(p, m); mergeSort(q, n-m);
+    merge(p, m, this, q, m-m);
+}
 
+template <typename T>//把所有的q放到p中去
+void List<T>::merge(Posi(T) p, int n, List<T>& l, Posi(T) q, int m){
+    Posi(T) pp = p->pred;
+    while(0<m){
+        if(0<n and (q->data>=p->data)){//p还在范围中，当q的值不小于p的值时，不进行合并，取p的后继
+            p = p->succ;
+            if(p == q) break;//如果p到q了，就结束了；此时因为可以相同的话就说明是一个列表中，可以跳过
+            n--;
+        }else{//此时如果是q小，就插入到p的前面，因为是已经搜索过的，此时的p就是正确的位置；如果是因为p走完了，那就是将所有的q都放到p的前面
+            insertB(p,l.remove((q=q->succ)->pred)); m--;
+        }
+    }
+    p = pp->succ;
+}
