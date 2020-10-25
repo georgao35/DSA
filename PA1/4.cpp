@@ -1,6 +1,5 @@
 #include <iostream>
 #include <cstdio>
-#include <cstring>
 using namespace std;
 
 const int maxn = 10e6+5;
@@ -16,7 +15,7 @@ Node *queapH, *queapT;
 void push(int data){
     Node* tmp1 = new Node(); tmp1->data = data;
     Node* p = queapT->pred;
-    while(p->data < data and p!=queapH){ 
+    while(p->data <= data and p!=queapH){ 
         tmp1->count += p->count; 
         p = p->pred;
     }
@@ -26,8 +25,8 @@ void push(int data){
 }
 void pop(){
     if (queapH->succ->count == 1){
-        queapH->succ->succ->pred = queapH;
         Node* p = queapH->succ; 
+        p->succ->pred = queapH;
         queapH->succ = p->succ;
         delete p;
     }else
@@ -86,12 +85,12 @@ int main(){
         push(x[i]);
     }
     delete[] x;
-    sort(result,0,n);
+    sort(result,0,n);//30ms
     int t; scanf("%d", &t);
     unsigned int p,q;
     while(t-->0){
         scanf("%d%d", &p, &q);
-        int m = search(p), n = search(q);
+        int m = search(p), n = search(q);//40ms
         printf("%d %d\n", m, n-m);
     }
     return 0;
