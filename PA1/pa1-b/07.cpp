@@ -48,8 +48,10 @@ public:
 	}
 	T& operator[](int r)
 	{
-		if (r >= 0 && r < _size)
+		//if (r >= 0 && r < _size)
 			return _elem[r];
+		//else 
+			//return _elem[0];
 	}
 	int insert(int r, T const& value)
 	{

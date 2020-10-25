@@ -5,6 +5,7 @@
 using namespace std;
 
 char a[1 << 22]; // 不分块的珠子
+char b[1 << 22];
 int realn;       // 珠子总长度
 
 const int cut = 1 << 11; // 分块时每一块的长度
@@ -42,15 +43,20 @@ void p2a() {
         memcpy(&a[realn], p[i], plen[i]);
         realn += plen[i];
     }
+    //realn = old_realn;
 }
 
 // 调试用：打印所有块，每块一行
 void viewp() {
-    for (int i = 0; i < pn; i++) {
+    if(realn == 0){
+        puts("-"); return;
+    }
+    for (int i = 0; i < pn; i++)
+    {
         for (int j = 0; j < plen[i]; j++)
             putchar(p[i][j]);
-        putchar('\n');
     }
+    putchar('\n');
 }
 
 Rank find(int rank) {
@@ -64,7 +70,7 @@ Rank find(int rank) {
 
 inline char &get(Rank pos) {
     return p[pos.first][pos.second];//在最后r=l时访问到-1了
-}
+} 
 
 // 在 p 上计算珠子的插入和消除
 void play(int rank, char ch) {
@@ -154,8 +160,5 @@ int main() {
         play(rank, ch);
         viewp();
     }
-    p2a();
-    a[realn] = '\0';
-    puts(a);
     return 0;
 }
