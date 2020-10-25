@@ -40,7 +40,7 @@ void init(){
 }
 void moveRight(){
     char which; //判断左右
-    scanf("%c", &which); getchar();
+    which = getchar(); getchar();
     int tmp = 0;//用来代表是左右光标的变量，以便从数组中直接取出
     if(which == 'R') tmp = 1;
     if(cursor[tmp] == 0) puts("F");
@@ -53,7 +53,7 @@ void moveRight(){
     }
 }
 void moveLeft(){//与moveRight()函数类似
-    char which; scanf("%c", &which); getchar();
+    char which; which = getchar(); getchar();
     int tmp = 0;
     if(which == 'R') tmp = 1;
     if(cursorId[tmp] == 0) puts("F");
@@ -66,8 +66,8 @@ void moveLeft(){//与moveRight()函数类似
     }
 }
 void insert(){
-    char which; scanf("%c", &which); getchar();//获取是左右的哪个光标
-    char target; scanf("%c", &target); getchar();//获取需要插入的字符
+    char which; which = getchar(); getchar();                                   //获取是左右的哪个光标
+    char target; target = getchar(); getchar();//获取需要插入的字符
     int tmp = 0;
     if(which == 'R') tmp = 1;
     cursorPrev[tmp] = insertAsPred(cursorPrev[tmp],cursor[tmp], target);//将目标字符插入光标和光标前缀，并将光标前缀放置到新创建的结点上
@@ -78,7 +78,7 @@ void insert(){
     puts("T");
 }
 void del(){
-    char which; scanf("%c", &which); getchar();
+    char which; which = getchar(); getchar();
     int tmp = 0; if(which == 'R') tmp = 1;//获取进行操作的是哪个光标
     if(cursor[tmp] == 0) {puts("F"); return;}//如果光标已经在最右侧，将输出F，且不进行操作
     int next = getSucc(cursorPrev[tmp],cursor[tmp]);//删除当前结点
@@ -118,7 +118,7 @@ int main(){
     int count = 0;
     while (n-- > 0){
         char manip;
-        scanf("%c", &manip); getchar();
+        manip = getchar(); getchar();
         switch (manip)
         {
         case '>':
