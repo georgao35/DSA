@@ -142,9 +142,6 @@ int main(){
         default:
             break;
         }
-        #ifndef _OJ_
-            show();
-        #endif
     }
     return 0;
 }

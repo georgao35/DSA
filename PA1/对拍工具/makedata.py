@@ -1,7 +1,7 @@
 import random
 
 # 3 组数据，每个数不超过 10 位
-n = 60
+n = 500
 hi = 10 ** 5003
 
 print(n)

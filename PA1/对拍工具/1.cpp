@@ -44,12 +44,12 @@ int main(){
         memset(IntA,0,sizeof(IntA));
         memset(IntB,0,sizeof(IntB));
         memset(result,0,sizeof(result));
-        cin>>a>>b;
+        scanf("%s%s",a,b);
         getInt();
         int alen = strlen(a)/8 + ( strlen(a)%8? 1:0 );
         int blen = strlen(b)/8 + ( strlen(b)%8? 1:0 );
 
-        for(int i=0;i<alen+blen;++i){
+        /*for(int i=0;i<alen+blen;++i){
             for(int j=0;j<=i;j++){
                 int k = i-j;
                 if(j < alen and k < blen){
@@ -60,9 +60,16 @@ int main(){
                 result[i] += result[i-1]/100000000;
                 result[i-1] %= 100000000;
             }
+        }*/
+        for(int i=0;i<alen;i++)
+            for(int j=0;j<blen;j++)
+                result[i+j] += IntA[i] * IntB[j];
+        for(int i=0;i<alen+blen-1;i++){
+            result[i+1] += result[i]/100000000;
+            result[i] %= 100000000;
         }
         int end = alen+blen-1;
-        while(result[end] == 0){
+        while(result[end] == 0 and end > 0){
             end --;
         }
         cout<<result[end--];
