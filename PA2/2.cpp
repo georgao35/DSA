@@ -1,39 +1,46 @@
 #include <cstdio>
-#ifdef _OJ_
 #define maxn 500001
-#else
-#define maxn 10
-#endif
 #define root 1
 
 struct listNode{
     listNode* nxt; int id;
+    listNode(int id):id(id){}
 };
 struct node{
     int sum;
     int lc, rc;//向左为0
-    node(int parent):sum(0),lc(0),rc(0){}
-}tree[1<<20 + 44*maxn];
+    node():sum(0),lc(0),rc(0){}
+}tree[1048576 + 44*maxn];
 struct leaf{
     int sum; listNode* head;
+    leaf(){head = new listNode(-1);}
 }leaves[maxn];
 
 int n,k;
-int totalNodes = 0, totalLeaves = 0;
-char src[10][65];
+int totalNodes = 1, totalLeaves = 0;
+char src[maxn][65];
 
-int getAns(int tar){
-
+inline void write(int x){
+    if (x < 0)
+        putchar('-'), x = -x;
+    if (x > 9)
+        write(x / 10);
+    putchar(x % 10 + '0');
 }
 
 void insert(int now, int tar){//向第now个叶子插入tar这个属性
     leaves[now].sum++;
-    
     //插入
+    listNode* cur = leaves[now].head;
+    while(cur->nxt!=nullptr) cur = cur->nxt;
+    cur->nxt = new listNode(tar); cur->nxt->nxt = nullptr;
 }
 
-void del(int now){//删除第now个叶子的记录
-
+void del(int now){//弹出第now个叶子的记录
+    leaves[now].sum--; 
+    listNode* cur = leaves[now].head;
+    cur = leaves[now].head->nxt;
+    leaves[now].head->nxt = cur->nxt; delete cur;
 }
 
 void push(int tar){
@@ -46,7 +53,7 @@ void push(int tar){
             now = tree[now].rc;
         }else{
             if(tree[now].lc==0) tree[now].lc = ++totalNodes;
-            now = tree[now].rc;
+            now = tree[now].lc;
         }
     }
     //最后一个
@@ -57,7 +64,7 @@ void push(int tar){
         now = tree[now].rc;
     }else{
         if(tree[now].lc==0) tree[now].lc = ++totalLeaves;
-        now = tree[now].rc;
+        now = tree[now].lc;
     }
     insert(now, tar);
 }
@@ -70,8 +77,31 @@ void pop(int tar){
         if(a) now = tree[now].rc;
         else now = tree[now].lc;
     }
-    leaves[now].sum--;
     del(now);
+}
+
+int query(int tar){//查找tar元件的最大异或
+    int now = root;
+    for(int i=0;i<63;i++){
+        int a = src[tar][i]-'0';
+        if(a){
+            if(tree[tree[now].lc].sum) now = tree[now].lc;
+            else now = tree[now].rc;
+        }else{
+            if(tree[tree[now].rc].sum) now = tree[now].rc;
+            else now = tree[now].lc;
+        }
+    }
+    int a = src[tar][63]-'0';
+    if(a){
+        if(leaves[tree[now].lc].sum) now = tree[now].lc;
+        else now = tree[now].rc;
+    }else{
+        if(leaves[tree[now].rc].sum) now = tree[now].rc;
+        else now = tree[now].lc;
+    }
+    if(leaves[now].head->nxt->id == tar) return leaves[now].head->nxt->nxt->id;
+    else return leaves[now].head->nxt->id;
 }
 
 int main(){
@@ -79,8 +109,13 @@ int main(){
     for(int i=0;i<n;i++)
         scanf("%s", src[i]);
     int ans = 0;
-    for(int i=1;i<=k+1;i++){
-        push(i);
+    for(int i=0;i<=k+1;i++)
+        if(i<n) push(i);
+        else break;
+    for(int i=0;i<n;i++){
+        write(query(i)); puts("");
+        if(i-k-1 >= 0) pop(i-k-1);
+        if(i+k+2 < n) push(i+k+2);
     }
     return 0;
 }
