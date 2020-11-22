@@ -90,7 +90,7 @@ int main(){
         if(operand == 'H'){
             flip(i,j,1,n,root);
         }else{
-            printf("%d\n", query(i,j,1,n,root));
+            printf("%lld\n", query(i,j,1,n,root));
         }
     }
     return 0;
