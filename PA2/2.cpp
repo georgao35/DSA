@@ -3,7 +3,7 @@
 #define root 1
 
 struct listNode{
-    listNode* nxt; int id;
+    listNode* nxt,* pre; int id;
     listNode(int id):id(id){}
 };
 struct node{
@@ -12,8 +12,8 @@ struct node{
     node():sum(0),lc(0),rc(0){}
 }tree[1048576 + 44*maxn];
 struct leaf{
-    int sum; listNode* head;
-    leaf(){head = new listNode(-1);}
+    int sum; listNode* head, *tail;
+    leaf(){head = new listNode(-1); tail = new listNode(-1); head->nxt = tail; tail->pre = head;}
 }leaves[maxn];
 
 int n,k;
@@ -28,19 +28,20 @@ inline void write(int x){
     putchar(x % 10 + '0');
 }
 
-void insert(int now, int tar){//向第now个叶子插入tar这个属性
+void insert(int now, int tar){//向第now个叶子插入tar
     leaves[now].sum++;
     //插入
-    listNode* cur = leaves[now].head;
-    while(cur->nxt!=nullptr) cur = cur->nxt;
-    cur->nxt = new listNode(tar); cur->nxt->nxt = nullptr;
+    listNode* cur = leaves[now].tail->pre;
+    //while(cur->nxt!=nullptr) cur = cur->nxt;
+    cur->nxt = new listNode(tar); cur->nxt->nxt = leaves[now].tail;
+    leaves[now].tail->pre = cur->nxt;
 }
 
 void del(int now){//弹出第now个叶子的记录
     leaves[now].sum--; 
-    listNode* cur = leaves[now].head;
-    cur = leaves[now].head->nxt;
-    leaves[now].head->nxt = cur->nxt; delete cur;
+    listNode* cur = leaves[now].head->nxt;
+    leaves[now].head->nxt = cur->nxt; cur->nxt->pre = leaves[now].head;
+    delete cur;
 }
 
 void push(int tar){

@@ -1,16 +1,21 @@
 #include <cstdio>
 #include <iostream>
 using namespace std;
-#ifndef _OJ_
-#define maxn 105
-#else
 #define maxn 1000005
-#endif
 
 struct Node{
     int parent, nextSibling, prevSibling, firstSon;
     int height, scale;
-}nodes[maxn];
+}nodes[maxn+5];
+struct Stack{
+    int data[maxn];
+    int _top = 0;
+    void clear(){_top = 0;}
+    int top(){return data[_top-1];}
+    void push(int tar){data[_top++] = tar;}
+    void pop(){_top--;}
+}s;
+bool updated[maxn];
 
 int n,m,all=0;
 void updateHeight(int);
@@ -23,7 +28,7 @@ inline void write(int x){
         write(x / 10);
     putchar(x % 10 + '0');
 }
-inline int read(){
+inline int read(){                                                       
     int s = 0, w = 1;
     char c = getchar();
     while (!isdigit(c)){ 
@@ -33,6 +38,9 @@ inline int read(){
         s = s * 10 + c - '0'; c = getchar();
     }
     return s * w;
+}
+inline int larger(int a, int b){
+    return a>b? a:b;
 }
 //找到parent的第index个孩子
 int getSon(int parent, int index){
@@ -69,13 +77,8 @@ void cut(int src){
         nodes[parent].scale -= nodes[src].scale;
         parent = nodes[parent].parent;
     }
-    parent = nodes[src].parent; int child = src;
-    while(parent){
-        int old_height = nodes[parent].height;
-        update(parent);
-        if(nodes[parent].height == old_height) break;
-        parent = nodes[parent].parent;
-    }
+    if(nodes[src].prevSibling) updateHeight(nodes[src].prevSibling);
+    else updateHeight(nodes[src].parent);
     nodes[src].parent = 0; nodes[src].prevSibling = 0; nodes[src].nextSibling = 0;
 }
 //移动以src为根的子树，接到tar的第rank个子树
@@ -88,52 +91,80 @@ void moveSub(int src, int tar, int rank){
         nodes[now].nextSibling = src;
     }else if(rank == 0){
         nodes[src].nextSibling = nodes[tar].firstSon;
-        nodes[nodes[tar].firstSon].prevSibling = src;
+        if(nodes[tar].firstSon) nodes[nodes[tar].firstSon].prevSibling = src;
         nodes[tar].firstSon = src;
     }
     nodes[src].parent = tar; int parent = tar, child = src;
+    updateHeight(src);
     while(parent){
         nodes[parent].scale += nodes[src].scale;
-        if(nodes[child].height>=nodes[parent].height) nodes[parent].height = nodes[child].height + 1;
-        child = parent; parent = nodes[parent].parent;
+        parent = nodes[parent].parent;
     }
 }
 //维护树高和规模
-int height(int id){
-    if(nodes[id].firstSon==0) return nodes[id].height = 0;
-    else{
-        if(nodes[id].height==0) updateHeight(id);
-        return nodes[id].height; 
+void initHeight(int id){
+    s.push(1);
+    while(s._top){
+        int a = s.top();
+        if(nodes[a].firstSon==0 and nodes[a].nextSibling==0){ 
+            nodes[a].height = 1; s.pop(); continue;
+        }else if(nodes[a].firstSon == 0){
+            if(nodes[nodes[a].nextSibling].height){ 
+                nodes [a].height = nodes[nodes[a].nextSibling].height; s.pop();
+            }
+            else s.push(nodes[a].nextSibling);
+        }else if(nodes[a].nextSibling == 0){
+            if(nodes[nodes[a].firstSon].height){
+                nodes[a].height = nodes[nodes[a].firstSon].height+1; s.pop();
+            }
+            else s.push(nodes[a].firstSon);
+        }else{
+            if(nodes[nodes[a].firstSon].height and nodes[nodes[a].nextSibling].height){
+                nodes[a].height = larger(nodes[nodes[a].firstSon].height+1, nodes[nodes[a].nextSibling].height);
+                s.pop(); continue;
+            }
+            if(nodes[nodes[a].firstSon].height==0) s.push(nodes[a].nextSibling);
+            if(nodes[nodes[a].nextSibling].height==0) s.push(nodes[a].firstSon);
+        }
     }
+    s.clear();
 }
 void updateHeight(int id){
-    int max = -1;
-    for(int now = nodes[id].firstSon;now;now = nodes[now].nextSibling)
-        max = max>height(now)? max:nodes[now].height;
-    nodes[id].height = max+1;
-}
-int size(int id){
-    if(nodes[id].firstSon==0) return nodes[id].scale=1;
-    else{
-        if(nodes[id].scale==0) updateSize(id);
-        return nodes[id].scale;
+    int now = id;
+    while(now){
+        nodes[now].height = larger(nodes[nodes[now].firstSon].height+1, nodes[nodes[now].nextSibling].height);
+        if(nodes[now].prevSibling == 0) now = nodes[now].parent;
+        else now = nodes[now].prevSibling;
     }
 }
-void updateSize(int id){
-    int scale = 0;
-    for(int now = nodes[id].firstSon;now;now = nodes[now].nextSibling)
-        scale += size(now);
-    nodes[id].scale = scale+1;
-}
-void update(int id = 1){
-    updateHeight(id); updateSize(id);
+
+void initSize(int id){
+    s.push(1);
+    int now = 0;//作用相当于队列的头，记录应该将谁的儿子推入栈
+    while(s._top < n){
+        int a = s.data[now];
+        int son = nodes[a].firstSon;
+        for(;son;son = nodes[son].nextSibling){
+            if(updated[son]) continue;
+            else{
+                s.push(son); updated[son] = true;
+            }
+        }
+        now++;
+    }
+    while(s._top){
+        int a = s.top(); s.pop();
+        int son = nodes[a].firstSon; nodes[a].scale = 1;
+        for(;son;son = nodes[son].nextSibling)
+            nodes[a].scale += nodes[son].scale;
+    }
+    s.clear();
 }
 
 int main(){
     n = read(); m = read();
     for(int i=1;i<=n;i++){
-        int size;
-        size = read();
+        int size = read();
         if(size){
             int tmp1, tmp2; 
             tmp1 = read(); nodes[tmp1].parent = i; nodes[i].firstSon = tmp1;
@@ -145,7 +176,8 @@ int main(){
             }
         }
     }
-    update();
+    initHeight(1); 
+    initSize(1);
     int command;
     while(m--){
         command = read();
@@ -161,7 +193,7 @@ int main(){
             break;
         case 1:
             tar = getNode();
-            write(nodes[tar].height); puts("");
+            write(nodes[nodes[tar].firstSon].height); puts("");
             break;
         case 2:
             tar = getNode();
