@@ -15,7 +15,7 @@ struct xquery{
 struct yquery{
     int max, min;
     int begin, end;
-}ytree[70*maxn];
+}ytree[50*maxn];
 int ytnode = 0;
 struct site{
     int x,y; int t;
@@ -39,17 +39,11 @@ inline int rc(int nodeId, int root){
 }
 inline int cmp(const void * a, const void * b){
     int tmpa = ((site *)a)->x, tmpb = ((site *)b)->x;
-    return tmpa-tmpb;
-    // if(tmpa > tmpb) return 1;
-    // else if(tmpa == tmpb) return 0;
-    // else return -1;
+    return (tmpa>tmpb)-(tmpa<tmpb);
 }
 inline int cmpy(const void * a, const void * b){
     int tmpa = ((pair<int,int> *)a)->first, tmpb = ((pair<int,int> *)b)->first;
-    return tmpa-tmpb;
-    // if(tmpa > tmpb) return 1;
-    // else if(tmpa == tmpb) return 0;
-    // else return -1;
+    return (tmpa>tmpb)-(tmpa<tmpb);
 }
 inline int larger(int a, int b){
     return a>b? a:b;
