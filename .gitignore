@@ -5,6 +5,7 @@
 *
 .DS_Store
 !*.cpp
+!*.h
 !*.in
 !*.md
 !*/
