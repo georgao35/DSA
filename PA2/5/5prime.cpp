@@ -13,7 +13,7 @@ using namespace std;
 
 struct xquery{
     int begin, end; int yroot;
-}*xtree;
+}xtree[4*maxn];
 struct yquery{
     int max, min;
     int begin, end;
@@ -37,17 +37,13 @@ public:
         delete [] old_content;
         _capacity *= 2;
     }
-    void append(const T& src){
-        if(_size == _capacity) expand();
-        _content[_size++] = src;
-    }
     T& operator[](int Rank){
         while(_capacity <= Rank) expand();
-        _size = Rank>_size? Rank:_size;
         return _content[Rank];
     }
 };
-Vector<Vector<yquery> > ytrees;
+Vector<yquery> ytrees[maxn];
+int allYtrees=0;
 inline int lc(int id){
     return id<<1;
 }
@@ -67,14 +63,14 @@ inline int smallerT(int t1, int t2){
 }
 inline int cmp(const void * a, const void * b){
     int tmpa = ((site *)a)->x, tmpb = ((site *)b)->x;
-    return tmpa-tmpb;
+    return (tmpa>tmpb)-(tmpa<tmpb);
     // if(tmpa > tmpb) return 1;
     // else if(tmpa == tmpb) return 0;
     // else return -1;
 }
 inline int cmpy(const void * a, const void * b){
     int tmpa = ((pair<int,int> *)a)->first, tmpb = ((pair<int,int> *)b)->first;
-    return tmpa-tmpb;
+    return (tmpa>tmpb)-(tmpa<tmpb);
     // if(tmpa > tmpb) return 1;
     // else if(tmpa == tmpb) return 0;
     // else return -1;
@@ -95,7 +91,7 @@ pair<int,int> initYQuery(int left, int right, int treeId, int nodeId){
 }
 
 void initQuery(int left, int right, int nodeId){
-    ytrees.append(Vector<yquery>()); xtree[nodeId].yroot = ytrees._size-1;
+    xtree[nodeId].yroot = allYtrees++;
     xtree[nodeId].begin = posi[left].x; xtree[nodeId].end = posi[right].x;
     if(left == right){
         ytrees[xtree[nodeId].yroot][root].max = ytrees[xtree[nodeId].yroot][root].min = posi[left].t;
@@ -115,7 +111,7 @@ void initQuery(int left, int right, int nodeId){
 }
 
 void init(int n, const int *x, const int *y, const int *t){
-    xtree = new xquery[4*n+1];
+    //xtree = new xquery[4*n+1];
     for(int i=0;i<n;i++){
         posi[i].x = x[i]; posi[i].y = y[i]; posi[i].t = t[i];
     }
@@ -124,11 +120,10 @@ void init(int n, const int *x, const int *y, const int *t){
 }
 
 pair<int,int> queryy(int y1, int y2, int nodeid, int treeid){
-    Vector<yquery> now = ytrees[treeid];
+    Vector<yquery>& now = ytrees[treeid];
     if(y1<=now[nodeid].begin and y2>=now[nodeid].end)
         return make_pair(now[nodeid].max, now[nodeid].min);
     if(y1>now[nodeid].end or y2<now[nodeid].begin) return make_pair(-1,-1);
-    //
     int lcend = now[lc(nodeid)].end, rcbegin = now[rc(nodeid)].begin;
     pair<int,int> left(-1,-1), right(-1,-1);
     if(y1<=lcend) left = queryy(y1, smaller(y2, lcend), lc(nodeid), treeid);

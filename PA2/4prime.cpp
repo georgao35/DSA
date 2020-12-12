@@ -86,7 +86,6 @@ void flip(int i, int j, int nodeId){
         return;
     }
     push_down(nodeId);
-    //int mid = (tree[nodeId].left+tree[nodeId].right) >> 1;
     int mid = tree[lc(nodeId)].right;
     if(i<=mid and j>mid){
         flip(i,mid,lc(nodeId));
