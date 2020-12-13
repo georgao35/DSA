@@ -68,7 +68,7 @@ template <typename T> inline NodePosi(T) tallerChild(NodePosi(T) x){
 }
 
 template <typename T> class BST{
-protected:
+public:
     int _size; NodePosi(T) _root, *_hot;
     NodePosi(T) connect34(
         NodePosi(T) a, NodePosi(T) b, NodePosi(T) c,
@@ -101,7 +101,6 @@ protected:
             }
         }
     }
-public:
     BST(){
         _root = nullptr; _size = 0;
     }
@@ -141,7 +140,7 @@ public:
             w = w->succ();
             T tmp = w->data; w->data = x->data; x->data = tmp;
             NodePosi(T) u = w->pa;
-            ((u==x)? u->rc:u->lc) = succ = w->rc;
+            (u==x? u->rc:u->lc) = succ = w->rc;
         }
         hot = w->pa;
         if(succ) succ->pa = hot;
@@ -182,28 +181,47 @@ public:
         return true;
     }
 };
-AVL<int> tree;
+BST<int> tree;
+
+void travPrev(NodePosi(int) now){
+    if(!now) return;
+    printf("%d ", now->data);
+    travPrev(now->lc); travPrev(now->rc);
+}
+void travMid(NodePosi(int) now){
+    if(!now) return;
+    travMid(now->lc); printf("%d ", now->data); travMid(now->rc);
+}
+void travPos(NodePosi(int) now){
+    if(!now) return;
+    travPos(now->lc); travPos(now->rc); printf("%d ", now->data);
+}
 
 int main(){
     int n;
-    scanf("%d", &n); getchar();
-    char operand; int para;
-    while(n--){
-        operand = getchar(); getchar(); scanf("%d",&para); getchar();
-        if(operand == 'A') tree.insert(para);
-        else if(operand == 'B') tree.remove(para);
-        else{
-            NodePosi(int) tar = tree.search(para);
-            if(tar) printf("%d", tar->data);
-            else{
-                tree.insert(para);
-                tar = tree.search(para);
-                NodePosi(int) a = tar->prev();
-                tree.remove(para);
-                if(a) printf("%d\n", a->data);
-                else puts("-1");
-            }
-        }
+    scanf("%d", &n);
+    for(int i=0;i<n;i++){
+        int tmp; scanf("%d",&tmp);
+        tree.insert(tmp);
     }
+    travPrev(tree._root);puts("");
+    travMid(tree._root);puts("");
+    travPos(tree._root);puts("");
+    scanf("%d", &n);
+    for(int i=0;i<n;i++){
+        int tmp; scanf("%d", &tmp);
+        if(tree.search(tmp)){
+            printf("Yes\n");
+        }else printf("No\n");
+    }
+    scanf("%d", &n);
+    for(int i=0;i<n;i++){
+        int tmp; scanf("%d", &tmp);
+        if(tree.remove(tmp)) printf("%d has now been deleted.\n", tmp);
+        else printf("No number!\n");
+    }
+    travPrev(tree._root);puts("");
+    travMid(tree._root);puts("");
+    travPos(tree._root);puts("");
     return 0;
 }
