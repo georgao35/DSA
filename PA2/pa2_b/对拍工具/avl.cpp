@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <iostream>
 #define NodePosi(T) treeNode<T>*
 enum RBcolor{Red, Black};
 
@@ -155,8 +156,8 @@ public:
 
 template <typename T> class AVL: public BST<T>{
 public:
-    virtual NodePosi(T) insert(const T& target) override {
-        NodePosi(T)& x = search(target); if(x) return x;
+    virtual NodePosi(T) insert(const T& target){
+        NodePosi(T)& x = this->search(target); if(x) return x;
         this->_size++; NodePosi(T) xx = x = new treeNode<T>(target, this->_hot);
         for(NodePosi(T) g = this->_hot;g;g=g->pa){
             if(!AvlBalanced(g)){
@@ -168,7 +169,7 @@ public:
         }
         return xx;
     }
-    virtual bool remove(const T& target) override {
+    virtual bool remove(const T& target){
         NodePosi(T)& w = this->search(target); if(!w) return false;
         this->BST<T>::removeAt(w, this->_hot); this->_size--;
         for(NodePosi(T) p = this->_hot;p;p=p->pa){
