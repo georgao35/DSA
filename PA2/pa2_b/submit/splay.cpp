@@ -1,5 +1,4 @@
 #include <cstdio>
-#include <iostream>
 #define NodePosi(T) treeNode<T>*
 enum RBcolor{Red, Black};
 
@@ -68,7 +67,7 @@ template <typename T> inline NodePosi(T) tallerChild(NodePosi(T) x){
 }
 
 template <typename T> class BST{
-public:
+protected:
     int _size; NodePosi(T) _root, *_hot;
     NodePosi(T) connect34(
         NodePosi(T) a, NodePosi(T) b, NodePosi(T) c,
@@ -101,9 +100,20 @@ public:
             }
         }
     }
+public:
     BST(){
         _root = nullptr; _size = 0;
     }
+    ~BST(){
+        release(_root);
+    }
+    void release(NodePosi(T) now){
+        if(!now) return;
+        if(now->lc) release(now->lc);
+        if(now->rc) release(now->rc);
+        delete now;
+    }
+    NodePosi(T) hot(){return _hot;}
     int updateHeight(NodePosi(T) x){
         return x->height = bigger(stature(x->lc),stature(x->rc))+1;
     }
@@ -140,10 +150,11 @@ public:
             w = w->succ();
             T tmp = w->data; w->data = x->data; x->data = tmp;
             NodePosi(T) u = w->pa;
-            (u==x? u->rc:u->lc) = succ = w->rc;
+            ((u==x)? u->rc:u->lc) = succ = w->rc;
         }
         hot = w->pa;
         if(succ) succ->pa = hot;
+        delete w;
     }
     virtual bool remove(const T& target){
         NodePosi(T)& w = search(target); if(!w) return false;
@@ -153,75 +164,120 @@ public:
     }
 };
 
-template <typename T> class AVL: public BST<T>{
-public:
-    virtual NodePosi(T) insert(const T& target){
-        NodePosi(T)& x = this->search(target); if(x) return x;
-        this->_size++; NodePosi(T) xx = x = new treeNode<T>(target, this->_hot);
-        for(NodePosi(T) g = this->_hot;g;g=g->pa){
-            if(!AvlBalanced(g)){
-                NodePosi(T)& a = FromParentTo(g);
-                a = this->rotateAt(tallerChild(tallerChild(g)));
-                break;
-            }else
-                this->updateHeight(g);
-        }
-        return xx;
-    }
-    virtual bool remove(const T& target){
-        NodePosi(T)& w = this->search(target); if(!w) return false;
-        this->BST<T>::removeAt(w, this->_hot); this->_size--;
-        for(NodePosi(T) p = this->_hot;p;p=p->pa){
-            if(!AvlBalanced(p)){
-                NodePosi(T)& a = FromParentTo(p);
-                p = a = this->rotateAt(tallerChild(tallerChild(p)));
+template <typename T> inline void attachAsLc(NodePosi(T) pa, NodePosi(T) lc){
+    pa->lc = lc; if(lc) lc->pa = pa;
+}
+template <typename T> inline void attachAsRc(NodePosi(T) pa, NodePosi(T) rc){
+    pa->rc = rc; if(rc) rc->pa = pa;
+}
+
+template <typename T> class Splay: public BST<T>{
+protected:
+    NodePosi(T) splay(NodePosi(T) x){
+        if(!x) return nullptr; NodePosi(T) p, *g;
+        while((p = x->pa)and(g = p->pa)){
+            NodePosi(T) gg = g->pa;
+            if(x->isLC()){
+                if(p->isLC()){
+                    attachAsLc(g, p->rc); attachAsLc(p, x->rc);
+                    attachAsRc(p, g); attachAsRc(x, p);
+                }else{
+                    attachAsLc(p, x->rc); attachAsRc(g, x->lc);
+                    attachAsLc(x, g); attachAsRc(x, p);
+                }
+            }else{
+                if(p->isRC()){
+                    attachAsRc(g, p->lc); attachAsRc(p, x->lc);
+                    attachAsLc(p, g); attachAsLc(x, p);
+                }else{
+                    attachAsLc(g, x->rc); attachAsRc(p, x->lc);
+                    attachAsLc(x, p); attachAsRc(x, g);
+                }
             }
-            this->updateHeight(p);
+            if(!gg) x->pa = nullptr;
+            else{
+                ( g==gg->lc? gg->lc:gg->rc) = x; x->pa = gg;
+            }
+            this->updateHeight(g); this->updateHeight(p); this->updateHeight(x); //更新当前的结点高度
         }
+        if(p = x->pa){
+            if(x->isLC()){
+                attachAsLc(p, x->rc); attachAsRc(x, p);
+            }else{
+                attachAsRc(p, x->lc); attachAsLc(x, p);
+            }
+            this->updateHeight(p); this->updateHeight(x);
+        }
+        x->pa = nullptr;
+        return x;//返回结点值，在调用处将其赋值为_root的值
+    }
+public:
+    NodePosi(T)& search(const T& src) override {
+        NodePosi(T) tar = BST<T>::search(src);
+        return this->_root = splay(tar? tar:this->_hot);
+    }
+    NodePosi(T) insert(const T& src) override {
+        if(!this->_root){
+            this->_size++;
+            return this->_root = new treeNode<T>(src);
+        }
+        NodePosi(T) tar = search(src);
+        if(tar->data == src) return tar;
+        this->_size++; NodePosi(T) t = this->_root;
+        if(src < t->data){
+            t->pa = this->_root = new treeNode<T>(src, nullptr, t->lc, t);
+            if(t->lc){
+                t->lc->pa = this->_root; t->lc = nullptr;
+            }
+        }else{
+            t->pa = this->_root = new treeNode<T>(src, nullptr, t, t->rc);
+            if(t->rc){
+                t->rc->pa = this->_root; t->rc = nullptr;
+            }
+        }
+        this->updateHeightAbove(t);
+        return this->_root;
+    }
+    bool remove(const T& src) override {
+        NodePosi(T) tar = search(src);
+        if(!this->_root or (tar->data != src)) return false;//没查找到的标记，由于splay中的更改了，因此有两种删除失败的条件：数空和查到的不是src
+        this->_size--; NodePosi(T) w = this->_root;
+        if(!w->lc){//如果没有左孩子
+            this->_root = this->_root->rc; if(this->_root) this->_root->pa = nullptr;
+        }else if(!w->rc){//如果没有右孩子
+            this->_root = this->_root->lc; if(this->_root) this->_root->pa = nullptr;
+        }else{//把左右孩子合并起来：利用splay的好性质使右子树的最小值提取上来
+            NodePosi(T) lsub = this->_root->lc; lsub->pa = nullptr; this->_root->lc = nullptr;
+            this->_root = this->_root->rc; this->_root->pa = nullptr;
+            search(w->data);
+            this->_root->lc = lsub; lsub->pa = this->_root;
+        }
+        //释放
+        if(this->_root) this->updateHeight(this->_root);
         return true;
     }
 };
-BST<int> tree;
-
-void travPrev(NodePosi(int) now){
-    if(!now) return;
-    printf("%d ", now->data);
-    travPrev(now->lc); travPrev(now->rc);
-}
-void travMid(NodePosi(int) now){
-    if(!now) return;
-    travMid(now->lc); printf("%d ", now->data); travMid(now->rc);
-}
-void travPos(NodePosi(int) now){
-    if(!now) return;
-    travPos(now->lc); travPos(now->rc); printf("%d ", now->data);
-}
+Splay<int> tree;
 
 int main(){
     int n;
-    scanf("%d", &n);
-    for(int i=0;i<n;i++){
-        int tmp; scanf("%d",&tmp);
-        tree.insert(tmp);
+    scanf("%d", &n); getchar();
+    char operand; int para;
+    while(n--){
+        operand = getchar(); getchar(); scanf("%d",&para); getchar();
+        if(operand == 'A') tree.insert(para);
+        else if(operand == 'B') tree.remove(para);
+        else{
+            NodePosi(int) tar = tree.search(para);
+            if(!tar) puts("-1");
+            else if(tar->data == para) printf("%d\n", para);
+            else if(tree.hot()->data < para) printf("%d\n", tree.hot()->data);
+            else {
+                NodePosi(int) a = tree.hot()->prev();
+                if(a) printf("%d\n", a->data);
+                else puts("-1");
+            }
+        }
     }
-    travPrev(tree._root);puts("");
-    travMid(tree._root);puts("");
-    travPos(tree._root);puts("");
-    scanf("%d", &n);
-    for(int i=0;i<n;i++){
-        int tmp; scanf("%d", &tmp);
-        if(tree.search(tmp)){
-            printf("Yes\n");
-        }else printf("No\n");
-    }
-    scanf("%d", &n);
-    for(int i=0;i<n;i++){
-        int tmp; scanf("%d", &tmp);
-        if(tree.remove(tmp)) printf("%d has now been deleted.\n", tmp);
-        else printf("No number!\n");
-    }
-    travPrev(tree._root);puts("");
-    travMid(tree._root);puts("");
-    travPos(tree._root);puts("");
     return 0;
 }

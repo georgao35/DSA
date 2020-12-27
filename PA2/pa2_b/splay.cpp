@@ -104,6 +104,16 @@ public:
     BST(){
         _root = nullptr; _size = 0;
     }
+    ~BST(){
+        //release(_root);
+    }
+    void release(NodePosi(T) now){
+        if(!now) return;
+        if(now->lc) release(now->lc);
+        if(now->rc) release(now->rc);
+        delete now;
+    }
+    NodePosi(T) hot(){return _hot;}
     int updateHeight(NodePosi(T) x){
         return x->height = bigger(stature(x->lc),stature(x->rc))+1;
     }
@@ -144,6 +154,7 @@ public:
         }
         hot = w->pa;
         if(succ) succ->pa = hot;
+        delete w;
     }
     virtual bool remove(const T& target){
         NodePosi(T)& w = search(target); if(!w) return false;
@@ -258,15 +269,14 @@ int main(){
         else if(operand == 'B') tree.remove(para);
         else{
             NodePosi(int) tar = tree.search(para);
-            if(!tar or (tar->data!=para)){
-                tree.insert(para);
-                tar = tree.search(para);
-                NodePosi(int) a = tar->prev();
-                tree.remove(para);
+            if(!tar) puts("-1");
+            else if(tar->data == para) printf("%d\n", para);
+            else if(tree.hot()->data < para) printf("%d\n", tree.hot()->data);
+            else {
+                NodePosi(int) a = tree.hot()->prev();
                 if(a) printf("%d\n", a->data);
                 else puts("-1");
             }
-            else printf("%d\n", tar->data);
         }
     }
     return 0;
